@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Riddle Chat</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='black'/><path d='M4 6 Q8 10 12 6' fill='none' stroke='lime' stroke-width='2'/></svg>">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Riddle Chat</h1>
+        <p class="info">Type "/riddle" or click below to face the abyss, "setname YourName" to carve your fate!</p>
+        <p class="stats">Points: <span id="points">{{ points }}</span> | Streak: <span id="streak">{{ streak }}</span> | You: <span id="username">{{ username }}</span> | Visitors: <span id="visitors">{{ visitor_count }}</span></p>
+        <div class="socials">
+            <a href="{{ github }}" target="_blank" class="social-link">GitHub</a>
+            <a href="{{ instagram }}" target="_blank" class="social-link">Instagram</a>
+            <a href="{{ x }}" target="_blank" class="social-link">X</a>
+        </div>
+        <div id="messages"></div>
+        <form id="messageForm">
+            <input type="text" id="messageInput" placeholder="Take the leap of faith..." required>
+            <button type="submit">Send</button>
+        </form>
+        <button id="riddleButton" onclick="socket.emit('message', '/riddle')">/riddle</button>
+        <div id="leaderboard">
+            <h2>Den of Legends</h2>
+            <ul id="leaderboard-list">
+                {% for name, score in leaderboard.items() %}
+                    <li>{{ name }}: {{ score }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div id="flame-overlay"></div>
+    <div id="joker-overlay"></div>
+    <script>
+        const socket = io();
+        const messages = document.getElementById("messages");
+        const flameOverlay = document.getElementById("flame-overlay");
+        const jokerOverlay = document.getElementById("joker-overlay");
+        const leaderboardList = document.getElementById("leaderboard-list");
+
+        socket.on("message", (data) => {
+            const msgDiv = document.createElement("div");
+            msgDiv.textContent = data;
+            msgDiv.classList.add("message");
+            messages.appendChild(msgDiv);
+            messages.scrollTop = messages.scrollHeight;
+            if (data.includes("scores!") || data.includes("guessed")) {
+                const pointsMatch = data.match(/Points: (\d+)/);
+                if (pointsMatch) document.getElementById("points").textContent = pointsMatch[1];
+                const streakMatch = data.match(/Streak: (\d+)/);
+                if (streakMatch) document.getElementById("streak").textContent = streakMatch[1];
+            }
+            if (data.includes("is now")) {
+                document.getElementById("username").textContent = data.split("is now ")[1].split("!")[0];
+            }
+        });
+
+        socket.on("streak", (streak) => {
+            flameOverlay.className = `flame-streak-${streak}`;
+            setTimeout(() => flameOverlay.className = "", 2000);
+            document.getElementById("streak").textContent = streak;
+        });
+
+        socket.on("joker", () => {
+            jokerOverlay.className = "joker-active";
+            setTimeout(() => jokerOverlay.className = "", 1500);
+        });
+
+        socket.on("leaderboard", (leaderboard) => {
+            leaderboardList.innerHTML = "";
+            Object.entries(leaderboard).sort((a, b) => b[1] - a[1]).forEach(([name, score]) => {
+                const li = document.createElement("li");
+                li.textContent = `${name}: ${score}`;
+                li.classList.add("leaderboard-entry");
+                if (leaderboardList.children.length === 0) li.classList.add("top-dog");
+                leaderboardList.appendChild(li);
+            });
+        });
+
+        document.getElementById("messageForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+            const input = document.getElementById("messageInput");
+            socket.emit("message", input.value);
+            input.value = "";
+        });
+    </script>
+</body>
+</html>
