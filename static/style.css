@@ -5,7 +5,7 @@ body {
     background: #111 url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="20" fill="rgba(255, 69, 0, 0.2)"><animate attributeName="r" values="20;25;20" dur="3s" repeatCount="indefinite"/></circle></svg>') repeat;
     font-family: 'Courier New', monospace;
     color: #e0e0e0;
-    overflow: hidden;
+    overflow-x: hidden;
     animation: flicker 5s infinite;
 }
 
@@ -15,11 +15,10 @@ body {
 }
 
 .container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 700px;
+    position: relative;
+    width: 90%;
+    max-width: 900px;
+    margin: 20px auto;
     padding: 20px;
     background: rgba(0, 0, 0, 0.9);
     border: 3px solid #8b0000;
@@ -29,8 +28,8 @@ body {
 }
 
 @keyframes float {
-    0%, 100% { transform: translate(-50%, -50%) translateY(0); }
-    50% { transform: translate(-50%, -50%) translateY(-10px); }
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
 }
 
 h1 {
@@ -38,11 +37,12 @@ h1 {
     color: #8b0000;
     text-shadow: 0 0 15px #8b0000;
     margin-bottom: 10px;
+    font-size: 2em;
 }
 
 .info, .stats {
     text-align: center;
-    font-size: 16px;
+    font-size: 1em;
     color: #ff4500;
     margin: 5px 0;
     text-shadow: 0 0 5px #ff4500;
@@ -51,12 +51,15 @@ h1 {
 .socials {
     text-align: center;
     margin: 10px 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 .social-link {
     color: #00ff00;
     text-decoration: none;
-    margin: 0 15px;
+    margin: 0 10px;
     text-shadow: 0 0 5px #00ff00;
     transition: all 0.3s;
 }
@@ -66,15 +69,30 @@ h1 {
     text-shadow: 0 0 15px #ff4500;
 }
 
-#messages {
+.chat-container {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.chat-box {
     background: rgba(20, 20, 20, 0.8);
     border: 2px solid #8b0000;
     padding: 15px;
     height: 300px;
     overflow-y: auto;
     border-radius: 5px;
-    margin-bottom: 20px;
     box-shadow: inset 0 0 10px #8b0000;
+    flex: 1;
+}
+
+.global-chat {
+    border-color: #006400;
+    box-shadow: inset 0 0 10px #006400;
+}
+
+.global-chat .message {
+    background: rgba(0, 100, 0, 0.3);
 }
 
 .message {
@@ -127,6 +145,7 @@ button {
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.3s;
+    touch-action: manipulation;
 }
 
 button:hover {
@@ -152,6 +171,7 @@ button:hover {
     border: 2px solid #8b0000;
     padding: 15px;
     border-radius: 5px;
+    position: relative;
 }
 
 #leaderboard h2 {
@@ -173,29 +193,30 @@ button:hover {
     background: rgba(139, 0, 0, 0.3);
     border-radius: 5px;
     transition: all 0.3s;
+    position: relative;
 }
 
 .top-dog {
     background: rgba(255, 69, 0, 0.4);
     box-shadow: 0 0 15px #ff4500;
-    position: relative;
-    overflow: hidden;
 }
 
 .top-dog::before {
     content: "";
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 80 Q60 60 50 40 Q40 60 50 80" fill="rgba(255, 69, 0, 0.8)" opacity="0.5"><animate attributeName="d" values="M50 80 Q60 60 50 40 Q40 60 50 80;M50 90 Q70 50 50 30 Q30 50 50 90;M50 80 Q60 60 50 40 Q40 60 50 80" dur="1s" repeatCount="indefinite"/></path></svg>') repeat;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 80 Q60 60 50 40 Q40 60 50 80" fill="rgba(255, 69, 0, 0.8)" opacity="0.5"><animate attributeName="d" values="M50 80 Q60 60 50 40 Q40 60 50 80;M50 90 Q70 50 50 30 Q30 50 50 90;M50 80 Q60 60 50 40 Q40 60 50 80" dur="1s" repeatCount="indefinite"/></path></svg>') center;
+    background-size: 50px;
+    opacity: 0.3;
     animation: topDogFlame 3s infinite;
 }
 
 @keyframes topDogFlame {
     0% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
+    50% { transform: translateY(-5px); }
     100% { transform: translateY(0); }
 }
 
@@ -207,27 +228,32 @@ button:hover {
     height: 100%;
     pointer-events: none;
     z-index: 1000;
+    opacity: 0;
+    background: none;
 }
 
 .flame-streak-2 {
     background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 80 Q60 60 50 40 Q40 60 50 80" fill="rgba(255, 69, 0, 0.8)" opacity="0.5"><animate attributeName="d" values="M50 80 Q60 60 50 40 Q40 60 50 80;M50 90 Q70 50 50 30 Q30 50 50 90;M50 80 Q60 60 50 40 Q40 60 50 80" dur="1s" repeatCount="indefinite"/></path></svg>') repeat;
-    animation: flameFade 2s ease-out;
+    opacity: 1;
+    animation: flameFade 2s ease-out forwards;
 }
 
 .flame-streak-3 {
     background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 90 Q70 50 50 30 Q30 50 50 90" fill="rgba(255, 165, 0, 0.9)" opacity="0.7"><animate attributeName="d" values="M50 90 Q70 50 50 30 Q30 50 50 90;M50 100 Q80 40 50 20 Q20 40 50 100;M50 90 Q70 50 50 30 Q30 50 50 90" dur="0.8s" repeatCount="indefinite"/></path></svg>') repeat;
-    animation: flameFade 2s ease-out;
+    opacity: 1;
+    animation: flameFade 2s ease-out forwards;
 }
 
 .flame-streak-5, .flame-streak-7 {
     background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 100 Q80 40 50 20 Q20 40 50 100" fill="rgba(255, 0, 0, 1)" opacity="1"><animate attributeName="d" values="M50 100 Q80 40 50 20 Q20 40 50 100;M50 110 Q90 30 50 10 Q10 30 50 110;M50 100 Q80 40 50 20 Q20 40 50 100" dur="0.6s" repeatCount="indefinite"/></path></svg>') repeat;
-    animation: flameFade 2s ease-out;
+    opacity: 1;
+    animation: flameFade 2s ease-out forwards;
 }
 
 @keyframes flameFade {
     0% { opacity: 1; }
     80% { opacity: 0.5; }
-    100% { opacity: 0; }
+    100% { opacity: 0; background: none; }
 }
 
 #joker-overlay {
@@ -238,12 +264,14 @@ button:hover {
     height: 100%;
     pointer-events: none;
     z-index: 1001;
+    opacity: 0;
 }
 
 .joker-active {
     background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><path d="M60 80 Q100 120 140 80 Q120 40 80 40 Q40 40 60 80" fill="none" stroke="green" stroke-width="10"/><circle cx="80" cy="70" r="10" fill="black"/><circle cx="120" cy="70" r="10" fill="black"/></svg>') center no-repeat;
     background-size: 300px;
-    animation: jokerLaugh 1.5s ease-out;
+    opacity: 1;
+    animation: jokerLaugh 1.5s ease-out forwards;
 }
 
 @keyframes jokerLaugh {
@@ -251,4 +279,41 @@ button:hover {
     20% { opacity: 1; transform: scale(1.2); }
     80% { opacity: 1; transform: scale(1); }
     100% { opacity: 0; transform: scale(0.8); }
+}
+
+@media (max-width: 600px) {
+    .container {
+        width: 95%;
+        margin: 10px auto;
+        padding: 10px;
+    }
+    h1 {
+        font-size: 1.5em;
+    }
+    .info, .stats {
+        font-size: 0.9em;
+    }
+    .chat-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .chat-box {
+        height: 150px;
+    }
+    form {
+        flex-direction: column;
+    }
+    input[type="text"] {
+        padding: 8px;
+    }
+    button {
+        padding: 8px;
+    }
+    #riddleButton {
+        width: 80%;
+        margin: 10px auto;
+    }
+    #leaderboard h2 {
+        font-size: 1.2em;
+    }
 }

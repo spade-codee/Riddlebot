@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Riddle Chat</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='black'/><path d='M4 6 Q8 10 12 6' fill='none' stroke='lime' stroke-width='2'/></svg>">
@@ -10,16 +11,19 @@
 <body>
     <div class="container">
         <h1>Riddle Chat</h1>
-        <p class="info">Type "/riddle" or click below to face the abyss, "setname YourName" to carve your fate!</p>
+        <p class="info">Type "/riddle" or click below to face the abyss, "setname YourName" to carve your fate, "/chat message" to talk globally, or "/hint" for a clue!</p>
         <p class="stats">Points: <span id="points">{{ points }}</span> | Streak: <span id="streak">{{ streak }}</span> | You: <span id="username">{{ username }}</span> | Visitors: <span id="visitors">{{ visitor_count }}</span></p>
         <div class="socials">
             <a href="{{ github }}" target="_blank" class="social-link">GitHub</a>
             <a href="{{ instagram }}" target="_blank" class="social-link">Instagram</a>
             <a href="{{ x }}" target="_blank" class="social-link">X</a>
         </div>
-        <div id="messages"></div>
+        <div class="chat-container">
+            <div id="messages" class="chat-box"></div>
+            <div id="global-messages" class="chat-box global-chat"></div>
+        </div>
         <form id="messageForm">
-            <input type="text" id="messageInput" placeholder="Take the leap of faith..." required>
+            <input type="text" id="messageInput" placeholder="Dare to speak, fool..." required>
             <button type="submit">Send</button>
         </form>
         <button id="riddleButton" onclick="socket.emit('message', '/riddle')">/riddle</button>
@@ -37,6 +41,7 @@
     <script>
         const socket = io();
         const messages = document.getElementById("messages");
+        const globalMessages = document.getElementById("global-messages");
         const flameOverlay = document.getElementById("flame-overlay");
         const jokerOverlay = document.getElementById("joker-overlay");
         const leaderboardList = document.getElementById("leaderboard-list");
@@ -58,15 +63,33 @@
             }
         });
 
+        socket.on("global_message", (data) => {
+            const msgDiv = document.createElement("div");
+            msgDiv.textContent = data;
+            msgDiv.classList.add("message");
+            globalMessages.appendChild(msgDiv);
+            globalMessages.scrollTop = globalMessages.scrollHeight;
+        });
+
         socket.on("streak", (streak) => {
-            flameOverlay.className = `flame-streak-${streak}`;
-            setTimeout(() => flameOverlay.className = "", 2000);
+            if ([2, 3, 5, 7].includes(streak)) {
+                flameOverlay.className = "";
+                flameOverlay.className = `flame-streak-${streak}`;
+                setTimeout(() => {
+                    flameOverlay.className = "";
+                    flameOverlay.style.opacity = "0";
+                }, 2000);
+            }
             document.getElementById("streak").textContent = streak;
         });
 
         socket.on("joker", () => {
+            jokerOverlay.className = "";
             jokerOverlay.className = "joker-active";
-            setTimeout(() => jokerOverlay.className = "", 1500);
+            setTimeout(() => {
+                jokerOverlay.className = "";
+                jokerOverlay.style.opacity = "0";
+            }, 1500);
         });
 
         socket.on("leaderboard", (leaderboard) => {
